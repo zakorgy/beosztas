@@ -3,7 +3,8 @@ from __future__ import unicode_literals
 
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
-from .forms import SignUpForm
+from .forms import SignUpForm, DailyRequestForm
+from .models import DailyRequest
 
 # Create your views here.
 
@@ -21,3 +22,16 @@ def signup(request):
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
+
+def add_request(request, user_id):
+    if request.method == 'POST':
+        form = DailyRequestForm(request.POST)
+        if form.is_valid():
+            daily_req = form.save(commit=False)
+            daily_req.user_id = user_id
+            daily_req.save()
+            return redirect('home')
+    else:
+        form = DailyRequestForm()
+    return render(request, 'add_request.html', {'form': form})
+
