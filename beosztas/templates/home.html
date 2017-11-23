@@ -5,11 +5,11 @@
 {% block content %}
 {% if user.is_authenticated %}
   Helló {{ user.username }}!
-  <p><a href="{% url 'users:add_request' user.id %}">Ráérés megadása</a></p>
+  <p><a href="{% url 'users:add_request' %}">Ráérés megadása</a></p>
+  <p><a href="{% url 'users:weekly_shift' %}">Aktuális heti beosztásom</a></p>
   <p><a>Késedelmes igény felvétele</a></p>
   <p><a>Csere kérvények</a></p>
-  <p><a>Aktuális heti beosztásom</a></p>
-  <p><a href="{% url 'logout' %}">Kilépés</a></p>
+<p><a href="{% url 'logout' %}">Kilépés</a></p>
 {% else %}
   <p>Nem vagy bejelentkezve</p>
   <a href="{% url 'login' %}">Belépés</a>

@@ -4,18 +4,28 @@
   <h2>Ráérés megadása</h2>
   <form method="post">
     {% csrf_token %}
-    {% for field in form %}
-      <p>
-        {{ field.label_tag }}<br>
-        {{ field }}
-        {% if field.help_text %}
-          <small style="color: grey">{{ field.help_text }}</small>
-        {% endif %}
-        {% for error in field.errors %}
-          <p style="color: red">{{ error }}</p>
-        {% endfor %}
-      </p>
-    {% endfor %}
+    <p>
+      {% if request_error %}
+      {{ request_error }}
+      {% endif %}
+    </p>
+    {{ weekly_request_form }}
+    <table>
+      <tr>
+        <th>Nap</th>
+        <th>Műszak</th>
+        <th>Óra</th>
+      </tr>
+      {{ daily_request_forms.management_form }}
+      {% for form in daily_request_forms %}
+        <tr>
+          {% for field in form %}
+            <td>{{ field }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+      {{ daily_request_forms.non_form_errors }}
+    </table>
     <button type="submit">Kész</button>
   </form>
 {% endblock %}

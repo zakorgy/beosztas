@@ -5,7 +5,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models import DailyRequest
+from .models import DailyRequest, WeeklyRequest
 
 
 class SignUpForm(UserCreationForm):
@@ -20,15 +20,20 @@ class SignUpForm(UserCreationForm):
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', )
 
-class DailyRequestForm(forms.ModelForm):
+class WeeklyRequestForm(forms.ModelForm):
     class Meta:
-        model = DailyRequest
+        model = WeeklyRequest
+        fields = ('week',)
         labels = {
-            'day': ('Nap'),
-            'shift': ('Műszak'),
-            'hours': ('Óra')
+            'week': ('Hét'),
         }
-        widgets = {
-            'day': forms.SelectDateWidget(),
-        }
-        exclude = ['user', 'is_working']
+
+class CustomDailyRequestFormSet(forms.BaseInlineFormSet):
+    def clean(self):
+        super(CustomDailyRequestFormSet, self).clean()
+
+DailyRequestFormSet = forms.inlineformset_factory(WeeklyRequest,
+                                                  DailyRequest,
+                                                  formset=CustomDailyRequestFormSet,
+                                                  fields=['day', 'shift','hours'],
+                                                  extra=7)
