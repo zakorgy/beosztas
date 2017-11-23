@@ -23,9 +23,7 @@ class DailyRequest(models.Model):
     # foreign key a userhez
     week = models.ForeignKey(WeeklyRequest, on_delete=models.CASCADE)
     # a nap dátuma amihez tartozik a rekord
-    day = models.DateField(max_length=20, default=now)
-    # dologzik-e az adott napon
-    is_working = models.BooleanField(default=False)
+    day = models.DateField(max_length=20)
     # reggeli vagy delutani muszak
     SHIFT_CHOICES = (
         ('DE', 'délelőtt'),
@@ -40,6 +38,31 @@ class DailyRequest(models.Model):
     )
     hours = models.SmallIntegerField(choices=HOUR_CHOICES, default=6)
 
+
+    def __str__(self):
+        return "<Daily: %r Day: %r>" % (self.week, self.day)
+
+    class Meta:
+        unique_together = (("week", "day"),)
+
+class LateRequest(models.Model):
+    # foreign key a userhez
+    week = models.ForeignKey(WeeklyRequest, on_delete=models.CASCADE)
+    # a nap dátuma amihez tartozik a rekord
+    day = models.DateField(max_length=20)
+    # reggeli vagy delutani muszak
+    SHIFT_CHOICES = (
+        ('DE', 'délelőtt'),
+        ('DU', 'délután'),
+        ('NO', 'nem'),
+    )
+    shift = models.CharField(max_length=10, choices=SHIFT_CHOICES, default='NO')
+    # 6 vagy 8 oras muszak
+    HOUR_CHOICES = (
+        (6, 6),
+        (8, 8),
+    )
+    hours = models.SmallIntegerField(choices=HOUR_CHOICES, default=6)
 
     def __str__(self):
         return "<Daily: %r Day: %r>" % (self.week, self.day)

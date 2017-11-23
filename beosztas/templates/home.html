@@ -3,13 +3,19 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-{% if user.is_authenticated %}
+{% if user.is_authenticated and user.is_staff %}
+  Helló {{ user.username }}!
+  <p><a href="{% url 'beo_admin:create_shifts' %}">Beosztás készítése</a></p>
+  <p><a href="{% url 'beo_admin:manage_users' %}">Alkalmazottak</a></p>
+  <p><a href="{% url 'beo_admin:last_month_stat' %}">Előző havi statisztika</a></p>
+  <p><a href="{% url 'logout' %}">Kilépés</a></p>
+{% elif user.is_authenticated %}
   Helló {{ user.username }}!
   <p><a href="{% url 'users:add_request' %}">Ráérés megadása</a></p>
   <p><a href="{% url 'users:weekly_shift' %}">Aktuális heti beosztásom</a></p>
-  <p><a>Késedelmes igény felvétele</a></p>
-  <p><a>Csere kérvények</a></p>
-<p><a href="{% url 'logout' %}">Kilépés</a></p>
+  <p><a href="{% url 'users:late_request' %}">Késedelmes igény felvétele</a></p>
+  <p><a href="{% url 'users:swap' %}">Csere kérvények</a></p>
+  <p><a href="{% url 'logout' %}">Kilépés</a></p>
 {% else %}
   <p>Nem vagy bejelentkezve</p>
   <a href="{% url 'login' %}">Belépés</a>

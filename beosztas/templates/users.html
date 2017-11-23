@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Felhasználók</h2>
+    {% csrf_token %}
+    {% for user in working_users %}
+    {% endfor %}
+{% endblock %}

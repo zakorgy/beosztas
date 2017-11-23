@@ -5,7 +5,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models import DailyRequest, WeeklyRequest
+from .models import DailyRequest, WeeklyRequest, LateRequest
 
 
 class SignUpForm(UserCreationForm):
@@ -37,3 +37,13 @@ DailyRequestFormSet = forms.inlineformset_factory(WeeklyRequest,
                                                   formset=CustomDailyRequestFormSet,
                                                   fields=['day', 'shift','hours'],
                                                   extra=7)
+
+class CustomLateRequestFormSet(forms.BaseInlineFormSet):
+    def clean(self):
+        super(CustomLateRequestFormSet, self).clean()
+
+LateRequestFormSet = forms.inlineformset_factory(WeeklyRequest,
+                                                 LateRequest,
+                                                 formset=CustomLateRequestFormSet,
+                                                 fields=['day', 'shift','hours'],
+                                                 extra=7)

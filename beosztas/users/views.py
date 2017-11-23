@@ -33,13 +33,13 @@ def add_request(request):
     next_monday = today + timedelta(days=-today.weekday(), weeks=1)
     weekly_request_form = WeeklyRequestForm(initial={'week': WeeklyRequest.NEXT_WEEK})
     daily_request_forms = DailyRequestFormSet(initial=[
-        {"day": str(next_monday) + ' (Hétfő)'},
-        {"day": str(next_monday + timedelta(days=1)) + ' (Kedd)'},
-        {"day": str(next_monday + timedelta(days=2)) + ' (Szerda)'},
-        {"day": str(next_monday + timedelta(days=3)) + ' (Csütörtök)'},
-        {"day": str(next_monday + timedelta(days=4)) + ' (Péntek)'},
-        {"day": str(next_monday + timedelta(days=5)) + ' (Szombat)'},
-        {"day": str(next_monday + timedelta(days=6)) + ' (Vasárnap)'},
+        {"day": next_monday},
+        {"day": next_monday + timedelta(days=1)},
+        {"day": next_monday + timedelta(days=2)},
+        {"day": next_monday + timedelta(days=3)},
+        {"day": next_monday + timedelta(days=4)},
+        {"day": next_monday + timedelta(days=5)},
+        {"day": next_monday + timedelta(days=6)},
     ])
     if request.method == 'POST':
         requested_week = request.POST.get('week')
@@ -66,14 +66,15 @@ def add_request(request):
                                                 'request_error': {}})
 
 @login_required(login_url='home')
+def late_request(request):
+    return redirect('home')
+
+@login_required(login_url='home')
 def weekly_shift(request):
     return redirect('home')
 
-@login_required(login_url='home')
-def swap(request):
-    return redirect('home')
 
 @login_required(login_url='home')
-def late_request(request):
+def swap(request):
     return redirect('home')
 
