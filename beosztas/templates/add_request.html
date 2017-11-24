@@ -2,13 +2,13 @@
 
 {% block content %}
   <h2>Ráérés megadása</h2>
+  <p>
+    {% if request_error %}
+    {{ request_error }}
+    {% endif %}
+  </p>
   <form method="post">
     {% csrf_token %}
-    <p>
-      {% if request_error %}
-      {{ request_error }}
-      {% endif %}
-    </p>
     {{ weekly_request_form }}
     <table>
       <tr>

@@ -58,8 +58,6 @@ def add_request(request):
                 daily_request_forms.save()
 
                 return redirect('home')
-            else:
-                print("asd")
 
     return render(request, 'add_request.html', {'weekly_request_form': weekly_request_form,
                                                 'daily_request_forms': daily_request_forms,

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Felhasználók</h2>
+    <table>
+      <tr>
+        <td>Felhasználónév</td>
+        <td>E-mail cím</td>
+        <td>Vezetéknév</td>
+        <td>Keresztnév</td>
+      </tr>
+      {% for user_row_form in user_row_forms %}
+      <tr>
+        <form method="post">
+        {% csrf_token %}
+          {% for field in user_row_form %}
+            <td>{{ field }}</td>
+          {% endfor %}
+          <td><button type="submit">Törlés</button></td>
+        </form>
+      </tr>
+      {% endfor %}
+    </table>
+{% endblock %}
