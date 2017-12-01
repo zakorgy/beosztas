@@ -11,17 +11,30 @@ import datetime
 
 @login_required(login_url='home')
 def create_shifts(request):
-    today = datetime.date.today()
-    (am, pm6, pm8) = generate_daily_shift_requirements(today)
-    daily_shift = DailyShift.objects.filter(day=today).values()[0]
-    daily_shift_form = DailyShiftForm(initial=daily_shift)
-    for i in range(1,9):
-        daily_shift_form.fields['am'+str(i)].choices = am
-    for i in range(1,5):
-        daily_shift_form.fields['pm6_'+str(i)].choices = pm8 + pm6
-    for i in range(1,9):
-        daily_shift_form.fields['pm8_'+str(i)].choices = pm8
-    return render(request, 'create_shifts.html', {'daily_shift_form': daily_shift_form})
+    if request.method == 'POST':
+        print(request.POST)
+        if DailyShift.update_from_post(request.POST):
+            return redirect('beo_admin:create_shifts')
+        else:
+            print('Redundancia!!!!!')
+            return redirect('beo_admin:create_shifts')
+    else:
+        today = datetime.date.today()
+        next_monday = today + datetime.timedelta(days=-today.weekday(), weeks=1)
+        daily_shift_forms = []
+        for i in range(0,7):
+            day = next_monday + datetime.timedelta(days=i)
+            (am, pm6, pm8) = generate_daily_shift_requirements(day)
+            daily_shift = DailyShift.objects.filter(day=day).values()[0]
+            daily_shift_form = DailyShiftForm(initial=daily_shift)
+            for i in range(1,9):
+                daily_shift_form.fields['am'+str(i)].choices = am
+            for i in range(1,5):
+                daily_shift_form.fields['pm6_'+str(i)].choices = pm8 + pm6
+            for i in range(1,9):
+                daily_shift_form.fields['pm8_'+str(i)].choices = pm8
+            daily_shift_forms.append(daily_shift_form)
+        return render(request, 'create_shifts.html', {'daily_shift_forms': daily_shift_forms})
 
 @login_required(login_url='home')
 def manage_users(request):

@@ -1,7 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% for daily_shift_form in daily_shift_forms %}
+<div class="floated_divs" style="float:left">
+  <form action="{% url 'beo_admin:create_shifts' %}" method="post">
+  {% csrf_token %}
   {{ daily_shift_form.management_form }}
-    {{ daily_shift_form }}
+    {{ daily_shift_form.as_ul}}
   {{ daily_shift_form.non_form_errors }}
+    <button type="submit">Módosít</button>
+  </form>
+</div>
+{% endfor %}
 {% endblock %}
