@@ -2,16 +2,20 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth import login, authenticate
-from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
-from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
-from .forms import SignUpForm, WeeklyRequestForm, DailyRequestFormSet
-from .models import DailyRequest, WeeklyRequest
+from .forms import SignUpForm, DailyRequestForm, UsersDailyShiftForm
+from .models import DailyRequest, UsersDailyShift, NEXT_WEEK
 
-# Create your views here.
+import datetime
+
+TODAY = datetime.date.today()
+NEXT_MONDAY = TODAY + datetime.timedelta(days=-TODAY.weekday(), weeks=1)
+
+
 from datetime import timedelta, date
+
 
 def signup(request):
     if request.method == 'POST':
@@ -27,49 +31,67 @@ def signup(request):
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
 
+# Heti ráérés leadása vagy változtatása
 @login_required(login_url='home')
 def add_request(request):
-    today = date.today()
-    next_monday = today + timedelta(days=-today.weekday(), weeks=1)
-    weekly_request_form = WeeklyRequestForm(initial={'week': WeeklyRequest.NEXT_WEEK})
-    daily_request_forms = DailyRequestFormSet(initial=[
-        {"day": next_monday},
-        {"day": next_monday + timedelta(days=1)},
-        {"day": next_monday + timedelta(days=2)},
-        {"day": next_monday + timedelta(days=3)},
-        {"day": next_monday + timedelta(days=4)},
-        {"day": next_monday + timedelta(days=5)},
-        {"day": next_monday + timedelta(days=6)},
-    ])
     if request.method == 'POST':
-        requested_week = request.POST.get('week')
-        if int(requested_week) < WeeklyRequest.NEXT_WEEK:
-            return render(request, 'add_request.html', {'weekly_request_form': weekly_request_form,
-                                                        'daily_request_forms': daily_request_forms,
-                                                        'request_error': 'Nem adhatsz meg ráérést visszamenőleg!'})
-        weekly_request_form = WeeklyRequestForm(request.POST)
-        if weekly_request_form.is_valid():
-            weekly_request =weekly_request_form.save(commit=False)
-
-            daily_request_forms = DailyRequestFormSet(request.POST, instance=weekly_request)
-            if daily_request_forms.is_valid():
-                weekly_request.user = request.user
-                weekly_request.save()
-                daily_request_forms.save()
-
-                return redirect('home')
-
-    return render(request, 'add_request.html', {'weekly_request_form': weekly_request_form,
+        post_dict = dict(request.POST.lists())
+        hours = post_dict['hours']
+        shifts = post_dict['shift']
+        days = post_dict['day']
+        for i in range(0, 7):
+            daily_request = DailyRequest.objects.get(user=request.user, day=days[i])
+            daily_request.shift = shifts[i]
+            daily_request.hours = hours[i]
+            daily_request.save()
+        return redirect('users:add_request')
+    daily_request_forms = []
+    for i in range(0, 7):
+        day = NEXT_MONDAY + timedelta(days=i)
+        daily_request = DailyRequest(user=request.user, day=day)
+        if DailyRequest.objects.filter(user=request.user, day=day):
+            daily_request = DailyRequest.objects.filter(user=request.user, day=day)[0]
+        daily_request_form = DailyRequestForm(initial=daily_request.__dict__)
+        daily_request.save()
+        daily_request_forms.append(daily_request_form)
+    return render(request, 'add_request.html', {'week': NEXT_WEEK,
                                                 'daily_request_forms': daily_request_forms,
                                                 'request_error': {}})
+
 
 @login_required(login_url='home')
 def late_request(request):
     return redirect('home')
 
+#Az aktuális és a következő heti ráérése a usernek
 @login_required(login_url='home')
 def weekly_shift(request):
-    return redirect('home')
+    current_weekly_shift = []
+    next_weekly_shift = []
+    for i in range(0, 7):
+        day_nw = NEXT_MONDAY + timedelta(days=i)
+        day_cw = day_nw - timedelta(days=7)
+        if UsersDailyShift.objects.filter(user=request.user, day=day_cw):
+            user_daily_shift = UsersDailyShift.objects.filter(user=request.user, day=day_cw)[0]
+            user_daily_shift_dict = user_daily_shift.__dict__
+            if user_daily_shift_dict['shift'].startswith('am'):
+                user_daily_shift_dict['shift'] = 'délelőtt'
+            else:
+                user_daily_shift_dict['shift'] = 'délután'
+            user_daily_shift_form = UsersDailyShiftForm(initial=user_daily_shift_dict)
+            current_weekly_shift.append(user_daily_shift_form)
+        if UsersDailyShift.objects.filter(user=request.user, day=day_nw):
+            user_daily_shift = UsersDailyShift.objects.filter(user=request.user, day=day_nw)[0]
+            user_daily_shift_dict = user_daily_shift.__dict__
+            if user_daily_shift_dict['shift'].startswith('am'):
+                user_daily_shift_dict['shift'] = 'délelőtt'
+            else:
+                user_daily_shift_dict['shift'] = 'délután'
+            user_daily_shift_form = UsersDailyShiftForm(initial=user_daily_shift_dict)
+            next_weekly_shift.append(user_daily_shift_form)
+    return render(request, 'weekly_shift.html', {'week': NEXT_WEEK,
+                                                 'current_weekly_shift': current_weekly_shift,
+                                                 'next_weekly_shift': next_weekly_shift})
 
 
 @login_required(login_url='home')

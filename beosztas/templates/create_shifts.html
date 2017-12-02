@@ -2,7 +2,13 @@
 
 {% block content %}
   {% if form_error %}
-<p style="color:red">{{ form_error }}</p>
+    <p style="color:red">{{ form_error }}</p>
+  {% endif %}
+  {% if daily_shift_forms %}
+    <form action="{% url 'beo_admin:finalize_shifts' %}" method="post">
+      {% csrf_token %}
+      <button type="submit">Közzétesz</button>
+    </form>
   {% endif %}
   {% for daily_shift_form in daily_shift_forms %}
   <div class="floated_divs" style="float:left">

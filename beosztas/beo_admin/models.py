@@ -3,26 +3,12 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib.auth.models import User
-from users.models import DailyRequest, WeeklyRequest
+from users.models import DailyRequest
 import re
 
-import datetime
 
 NAME_REGEX = r'^([A-Z]([a-záéúőóüö.]{1,}\s?)){2,}$'
 NAME_REGEX = re.compile(NAME_REGEX, re.IGNORECASE)
-
-
-class UsersDailyShift(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    day = models.DateField(max_length=20)
-    shift = models.CharField(max_length=10)
-    hours = models.SmallIntegerField
-
-    def __str__(self):
-        return "<Daily: %r Day: %r>" % (self.user, self.day)
-
-    class Meta:
-        unique_together = (("user", "day"),)
 
 
 class DailyShift(models.Model):
@@ -55,6 +41,23 @@ class DailyShift(models.Model):
     pm8_6 = models.CharField(max_length=30, default='Üres')
     pm8_7 = models.CharField(max_length=30, default='Üres')
     pm8_8 = models.CharField(max_length=30, default='Üres')
+
+    def has_empty_field(self):
+        for i in range(1, 9):
+            am_str = 'am' + str(i)
+            if getattr(self, am_str) == 'Ü':
+                return (True, 'délelőttös')
+            pm8_str = 'pm8_' + str(i)
+            if getattr(self, pm8_str) == 'Ü':
+                return (True, 'délután nyolcas')
+            if i < 5:
+                pm6_str = 'pm6_' + str(i)
+                if getattr(self, pm6_str) == 'Ü':
+                    return (True, 'délután hatos')
+        return (False, '')
+
+    def has_empty_field_mock(self):
+        return (False, '')
 
 
 def update_from_post(post):
@@ -89,7 +92,7 @@ def generate_daily_shift_requirements(day):
     possible_pm6_worker = list()
     possible_pm8_worker = list()
     for request in requests_for_this_day:
-        name = request.week.user.first_name + " " + request.week.user.last_name
+        name = request.user.first_name + " " + request.user.last_name
         #print('Userd name:' + user_name)
         print("SHIFT: " + str(request.shift))
         if request.shift == 'DE':

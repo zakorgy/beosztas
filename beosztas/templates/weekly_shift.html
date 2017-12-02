@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <p>Eheti beosztásom</p>
+    <table>
+      <tr>
+        <th>Nap</th>
+        <th>Műszak</th>
+        <th>Óra</th>
+      </tr>
+  {% for day in current_weekly_shift %}
+      <tr>
+        {% for field in day %}
+        <td>
+          {{ field }}
+        </td>
+        {% endfor %}
+      </tr>
+  {% endfor %}
+    </table>
+  <p>Jövőheti beosztásom</p>
+    <table>
+      <tr>
+        <th>Nap</th>
+        <th>Műszak</th>
+        <th>Óra</th>
+      </tr>
+  {% for day in next_weekly_shift %}
+      <tr>
+        {% for field in day %}
+        <td>
+          {{ field }}
+        </td>
+        {% endfor %}
+      </tr>
+  {% endfor %}
+    </table>
+{% endblock %}

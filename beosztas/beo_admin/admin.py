@@ -5,7 +5,6 @@ from django.contrib import admin
 from django.contrib import admin
 # Register your models here.
 
-from .models import DailyShift, UsersDailyShift
+from .models import DailyShift
 
 admin.site.register(DailyShift)
-admin.site.register(UsersDailyShift)

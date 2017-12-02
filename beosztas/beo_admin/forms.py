@@ -5,6 +5,7 @@ from django import forms
 from django.contrib.auth.models import User
 from .models import DailyShift
 
+
 class UserRowForm(forms.ModelForm):
     username = forms.CharField()
     email = forms.CharField(disabled=True)
@@ -14,6 +15,7 @@ class UserRowForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('username', 'email', 'last_name', 'first_name')
+
 
 class DailyShiftForm(forms.ModelForm):
     DEFAULT_CHOICES = (
@@ -50,34 +52,34 @@ class DailyShiftForm(forms.ModelForm):
     pm8_7 = forms.ChoiceField(label='Délután (8)', choices=DEFAULT_CHOICES)
     pm8_8 = forms.ChoiceField(label='Délután (8)', choices=DEFAULT_CHOICES)
 
-    #def __init__(self, am_choices, pm6_choices, pm8_choices, *args, **kwargs):
-    #    super(DailyShiftForm, self).__init__(*args, **kwargs)
-    #    for i in range(1, 9):
-    #        self.fields['am' + str(i)].choices = am_choices
-    #    for i in range(1, 5):
-    #        self.fields['pm6_' + str(i)].choices = pm6_choices + pm8_choices
-    #    for i in range(1, 9):
-    #        self.fields['pm8_' + str(i)].choices = pm8_choices
+#   def __init__(self, am_choices, pm6_choices, pm8_choices, *args, **kwargs):
+#       super(DailyShiftForm, self).__init__(*args, **kwargs)
+#       for i in range(1, 9):
+#           self.fields['am' + str(i)].choices = am_choices
+#       for i in range(1, 5):
+#           self.fields['pm6_' + str(i)].choices = pm6_choices + pm8_choices
+#       for i in range(1, 9):
+#           self.fields['pm8_' + str(i)].choices = pm8_choices
 
     class Meta:
         model = DailyShift
         exclude = ('AM_CHOICES', 'PM6_CHOICES', 'PM8_CHOICES')
 
-    def clean(self):
-        names = []
-        print('Cleaned data = ' + str(dict(self.cleaned_data)))
-        for i in range(1,9):
-            name_am = str(self.cleaned_data.get('am'+str(i)))
-            name_pm8 = str(self.cleaned_data.get('pm8_'+str(i)))
-            if name_am != 'Ü':
-                names.append(name_am)
-            if name_pm8 != 'Ü':
-                names.append(name_pm8)
-        for i in range(1,5):
-            name_pm6 = str(self.cleaned_data.get('pm8_'+str(i)))
-            if name_pm6 != 'Ü':
-                names.append(name_pm6)
-
-        if len(names) != len(set(names)):
-            raise forms.ValidationError("Hiba! Egy név nem szerepelhet többször egy nap")
+#    def clean(self):
+#        names = []
+#        print('Cleaned data = ' + str(dict(self.cleaned_data)))
+#        for i in range(1,9):
+#            name_am = str(self.cleaned_data.get('am'+str(i)))
+#            name_pm8 = str(self.cleaned_data.get('pm8_'+str(i)))
+#            if name_am != 'Ü':
+#                names.append(name_am)
+#            if name_pm8 != 'Ü':
+#                names.append(name_pm8)
+#        for i in range(1,5):
+#            name_pm6 = str(self.cleaned_data.get('pm8_'+str(i)))
+#            if name_pm6 != 'Ü':
+#                names.append(name_pm6)
+#
+#        if len(names) != len(set(names)):
+#            raise forms.ValidationError("Hiba! Egy név nem szerepelhet többször egy nap")
 

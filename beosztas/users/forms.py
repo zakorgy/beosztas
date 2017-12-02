@@ -5,7 +5,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models import DailyRequest, WeeklyRequest, LateRequest
+from .models import DailyRequest, UsersDailyShift
 
 
 class SignUpForm(UserCreationForm):
@@ -21,34 +21,17 @@ class SignUpForm(UserCreationForm):
         fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', )
 
 
-class WeeklyRequestForm(forms.ModelForm):
+class DailyRequestForm(forms.ModelForm):
     class Meta:
-        model = WeeklyRequest
-        fields = ('week',)
-        labels = {
-            'week': ('Hét'),
-        }
+        model = DailyRequest
+        fields = ('day', 'shift', 'hours')
 
 
-class CustomDailyRequestFormSet(forms.BaseInlineFormSet):
-    def clean(self):
-        super(CustomDailyRequestFormSet, self).clean()
+class UsersDailyShiftForm(forms.ModelForm):
+    day = forms.CharField(disabled=True, label='')
+    shift = forms.CharField(disabled=True, label='')
+    hours = forms.CharField(disabled=True, label='')
 
-
-DailyRequestFormSet = forms.inlineformset_factory(WeeklyRequest,
-                                                  DailyRequest,
-                                                  formset=CustomDailyRequestFormSet,
-                                                  fields=['day', 'shift','hours'],
-                                                  extra=7)
-
-
-#class CustomLateRequestFormSet(forms.BaseInlineFormSet):
-#    def clean(self):
-#        super(CustomLateRequestFormSet, self).clean()
-#
-#
-#LateRequestFormSet = forms.inlineformset_factory(WeeklyRequest,
-#                                                 LateRequest,
-#                                                 formset=CustomLateRequestFormSet,
-#                                                 fields=['day', 'shift','hours'],
-#                                                 extra=7)
+    class Meta:
+        model = UsersDailyShift
+        fields = ('day', 'shift', 'hours')

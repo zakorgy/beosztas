@@ -9,14 +9,13 @@
   </p>
   <form method="post">
     {% csrf_token %}
-    {{ weekly_request_form }}
+    <p>{{ week }}. hét<p>
     <table>
       <tr>
         <th>Nap</th>
         <th>Műszak</th>
         <th>Óra</th>
       </tr>
-      {{ daily_request_forms.management_form }}
       {% for form in daily_request_forms %}
         <tr>
           {% for field in form %}
@@ -24,8 +23,7 @@
           {% endfor %}
         </tr>
       {% endfor %}
-      {{ daily_request_forms.non_form_errors }}
     </table>
-    <button type="submit">Kész</button>
+    <button type="submit">Elküld</button>
   </form>
 {% endblock %}

@@ -12,9 +12,9 @@
 {% elif user.is_authenticated %}
   Helló {{ user.username }}!
   <p><a href="{% url 'users:add_request' %}">Ráérés megadása</a></p>
-  <p><a href="{% url 'users:weekly_shift' %}">Aktuális heti beosztásom</a></p>
+  <p><a href="{% url 'users:weekly_shift' %}">Beosztásaim</a></p>
   <p><a href="{% url 'users:late_request' %}">Késedelmes igény felvétele</a></p>
-  <p><a href="{% url 'users:swap' %}">Csere kérvények</a></p>
+  <p><a href="{% url 'users:swap' %}">Csere vagy leadás</a></p>
   <p><a href="{% url 'logout' %}">Kilépés</a></p>
 {% else %}
   <p>Nem vagy bejelentkezve</p>
