@@ -4,10 +4,13 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import User
 from users.models import DailyRequest, WeeklyRequest
+import re
 
 import datetime
 
-# Create your models here.
+NAME_REGEX = r'^([A-Z]([a-záéúőóüö.]{1,}\s?)){2,}$'
+NAME_REGEX = re.compile(NAME_REGEX, re.IGNORECASE)
+
 
 class UsersDailyShift(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -20,6 +23,7 @@ class UsersDailyShift(models.Model):
 
     class Meta:
         unique_together = (("user", "day"),)
+
 
 class DailyShift(models.Model):
     # the day of the shift
@@ -52,37 +56,27 @@ class DailyShift(models.Model):
     pm8_7 = models.CharField(max_length=30, default='Üres')
     pm8_8 = models.CharField(max_length=30, default='Üres')
 
-    @staticmethod
-    def update_from_post(post):
-        names = post.values()
-        names.remove('Ü')
-        if len(set(names)) != len(names):
-            return False
-        shift = DailyShift.objects.get(day=post.get('day'))
-        shift.am1 = post.get('am1')
-        shift.am2 = post.get('am2')
-        shift.am3 = post.get('am3')
-        shift.am4 = post.get('am4')
-        shift.am5 = post.get('am5')
-        shift.am6 = post.get('am6')
-        shift.am7 = post.get('am7')
-        shift.am8 = post.get('am8')
 
-        shift.pm6_1 = post.get('pm6_1')
-        shift.pm6_2 = post.get('pm6_2')
-        shift.pm6_3 = post.get('pm6_3')
-        shift.pm6_4 = post.get('pm6_4')
+def update_from_post(post):
+    names = list()
+    for name in list(post.values()):
+        if name != 'Ü' and NAME_REGEX.match(name):
+            names.append(name)
+    #print('NAMES: ' + str(names))
+    if len(set(names)) != len(names):
+        return False
+    shift = DailyShift.objects.get(day=post.get('day'))
+    for i in range(1, 9):
+        am_str = 'am' + str(i)
+        setattr(shift, am_str, post.get(am_str))
+        pm8_str = 'pm8_' + str(i)
+        setattr(shift, pm8_str, post.get(pm8_str))
+        if i < 5:
+            pm6_str = 'pm6_' + str(i)
+            setattr(shift, pm6_str, post.get(pm6_str))
+    shift.save()
+    return True
 
-        shift.pm8_1 = post.get('pm8_1')
-        shift.pm8_2 = post.get('pm8_2')
-        shift.pm8_3 = post.get('pm8_3')
-        shift.pm8_4 = post.get('pm8_4')
-        shift.pm8_5 = post.get('pm8_5')
-        shift.pm8_6 = post.get('pm8_6')
-        shift.pm8_7 = post.get('pm8_7')
-        shift.pm8_8 = post.get('pm8_8')
-        shift.save()
-        return True
 
 def generate_daily_shift_requirements(day):
     daily_shift = DailyShift()
@@ -118,13 +112,13 @@ def generate_daily_shift_requirements(day):
     )
 
     for i, worker in enumerate(possible_am_worker):
-        print('am' + worker)
+        #print('am' + worker)
         AM_CHOICES += ((str(worker), str(worker)),)
     for i, worker in enumerate(possible_pm6_worker):
-        print('pm6' + worker)
+        #print('pm6' + worker)
         PM6_CHOICES += ((str(worker), str(worker)),)
     for i, worker in enumerate(possible_pm8_worker):
-        print('pm8' + worker)
+        #print('pm8' + worker)
         PM8_CHOICES += ((str(worker), str(worker)),)
 
     return (AM_CHOICES, PM6_CHOICES, PM8_CHOICES)

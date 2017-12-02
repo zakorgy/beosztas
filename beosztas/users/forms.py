@@ -20,6 +20,7 @@ class SignUpForm(UserCreationForm):
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', )
 
+
 class WeeklyRequestForm(forms.ModelForm):
     class Meta:
         model = WeeklyRequest
@@ -28,9 +29,11 @@ class WeeklyRequestForm(forms.ModelForm):
             'week': ('Hét'),
         }
 
+
 class CustomDailyRequestFormSet(forms.BaseInlineFormSet):
     def clean(self):
         super(CustomDailyRequestFormSet, self).clean()
+
 
 DailyRequestFormSet = forms.inlineformset_factory(WeeklyRequest,
                                                   DailyRequest,
@@ -38,12 +41,14 @@ DailyRequestFormSet = forms.inlineformset_factory(WeeklyRequest,
                                                   fields=['day', 'shift','hours'],
                                                   extra=7)
 
-class CustomLateRequestFormSet(forms.BaseInlineFormSet):
-    def clean(self):
-        super(CustomLateRequestFormSet, self).clean()
 
-LateRequestFormSet = forms.inlineformset_factory(WeeklyRequest,
-                                                 LateRequest,
-                                                 formset=CustomLateRequestFormSet,
-                                                 fields=['day', 'shift','hours'],
-                                                 extra=7)
+#class CustomLateRequestFormSet(forms.BaseInlineFormSet):
+#    def clean(self):
+#        super(CustomLateRequestFormSet, self).clean()
+#
+#
+#LateRequestFormSet = forms.inlineformset_factory(WeeklyRequest,
+#                                                 LateRequest,
+#                                                 formset=CustomLateRequestFormSet,
+#                                                 fields=['day', 'shift','hours'],
+#                                                 extra=7)
